@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "..fullname" $ }}-test-job
+  annotations:
+    argocd.argoproj.io/hook: PostDelete
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  ttlSecondsAfterFinished: 10
+  template:
+    metadata:
+      labels:
+        job-label: {{ include "..fullname" . }}-test-job
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: {{ include "..fullname" $ }}-test-job
+          image: debian:bookworm-slim
+          command: ["sleep", "30"]
+  backoffLimit: 1
