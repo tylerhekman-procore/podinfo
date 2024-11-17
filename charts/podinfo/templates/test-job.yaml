@@ -16,5 +16,5 @@ spec:
       containers:
         - name: test-job
           image: debian:bookworm-slim
-          command: ["sleep", "30"]
+          command: ["sleep", {{ quote .Values.deleteHook.sleepDuration }}]
   backoffLimit: 1
