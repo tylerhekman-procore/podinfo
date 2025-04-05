@@ -5,11 +5,11 @@ metadata:
   labels:
     app.procore.com/domain: developer-excellence
     app.procore.com/system: composable-test-environments
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   template:
     metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
       labels:
         app.procore.com/domain: developer-excellence
         app.procore.com/system: composable-test-environments
