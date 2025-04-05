@@ -2,8 +2,15 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: firstwait10m
+  labels:
+    app.procore.com/domain: developer-excellence
+    app.procore.com/system: composable-test-environments
 spec:
   template:
+    metadata:
+      labels:
+        app.procore.com/domain: developer-excellence
+        app.procore.com/system: composable-test-environments
     spec:
       containers:
       - name: firstwait10m

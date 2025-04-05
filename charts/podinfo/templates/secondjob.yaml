@@ -2,10 +2,17 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: secondwait10m
+  labels:
+    app.procore.com/domain: developer-excellence
+    app.procore.com/system: composable-test-environments
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   template:
+    metadata:
+      labels:
+        app.procore.com/domain: developer-excellence
+        app.procore.com/system: composable-test-environments
     spec:
       containers:
       - name: secondwait10m
