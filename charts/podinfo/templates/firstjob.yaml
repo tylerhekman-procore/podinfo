@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: wait10m
+  name: firstwait10m
 spec:
   template:
     spec:
       containers:
-      - name: wait10m
+      - name: firstwait10m
         image: debian:latest
         command: ["sleep",  "600"]
       restartPolicy: Never
