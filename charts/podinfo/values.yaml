@@ -8,8 +8,9 @@ backends: []
 
 image:
   repository: ghcr.io/stefanprodan/podinfo
-  tag: 6.7.1
+  tag: 6.11.2
   pullPolicy: IfNotPresent
+  pullSecrets: []
 
 ui:
   color: "#34577c"
@@ -29,6 +30,7 @@ faults:
 service:
   enabled: true
   annotations: {}
+  additionalLabels: { }
   type: ClusterIP
   metricsPort: 9797
   httpPort: 9898
@@ -40,6 +42,9 @@ service:
   # NOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing
   # in local clusters such as kind without port forwarding
   hostPort:
+  # Stable from Kubernetes v1.33+ with a value of PreferClose. Additional values are PreferSameZone and PreferSameNode from v1.34+. Empty string means it's disabled.
+  trafficDistribution: ""
+  externalTrafficPolicy: ""
 
 # enable h2c protocol (non-TLS version of HTTP/2)
 h2c:
@@ -54,6 +59,14 @@ config:
 
 # Additional command line arguments to pass to podinfo container
 extraArgs: []
+
+# Extra environment variables for the podinfo container
+extraEnvs: []
+# Example on how to configure extraEnvs
+#  - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+#    value: "http://otel:4317"
+#  - name: MULTIPLE_VALUES
+#    value: TEST
 
 # enable tls on the podinfo service
 tls:
@@ -80,6 +93,65 @@ certificate:
   dnsNames:
     - podinfo
 
+# Helm hooks (for testing purposes)
+hooks:
+  preInstall:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  postInstall:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  preDelete:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  postDelete:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  preUpgrade:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  postUpgrade:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  preRollback:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+  postRollback:
+    job:
+      enabled: false
+      hookDeletePolicy: hook-succeeded,hook-failed
+      ttlSecondsAfterFinished:
+      sleepSeconds:
+      exitCode: 0
+
 # metrics-server add-on required
 hpa:
   enabled: false
@@ -96,8 +168,9 @@ cache: ""
 # Redis deployment
 redis:
   enabled: false
-  repository: redis
-  tag: 7.0.7
+  repository: docker.io/redis
+  tag: 8.6.1
+  imagePullSecrets: []
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -111,6 +184,12 @@ serviceAccount:
 # set container security context
 securityContext: {}
 
+# set pod security context
+podSecurityContext: {}
+
+# -- Expose the service via Kubernetes Ingress
+# Requires an Ingress controller
+# Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: false
   className: ""
@@ -128,9 +207,52 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-linkerd:
-  profile:
-    enabled: false
+# -- Expose the service via Gateway HTTPRoute
+# Requires a Gateway controller
+# Docs https://gateway-api.sigs.k8s.io/guides/
+httpRoute:
+  # HTTPRoute enabled.
+  enabled: false
+  # Add additional labels to the HTTPRoute.
+  additionalLabels: {}
+  # HTTPRoute annotations.
+  annotations: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+    - name: gateway
+      sectionName: http
+      # namespace: default
+  # Hostnames matching HTTP header.
+  hostnames:
+    - podinfo.local
+  # List of rules and filters applied.
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+# -- Expose the gRPC service via Gateway GRPCRoute
+# Requires a Gateway controller with GRPCRoute support
+# Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
+grpcRoute:
+  # GRPCRoute enabled.
+  enabled: false
+  # Add additional labels to the GRPCRoute.
+  additionalLabels: {}
+  # GRPCRoute annotations.
+  annotations: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+    - name: gateway
+      sectionName: http
+      # namespace: default
+  # Hostnames matching HTTP header.
+  hostnames:
+    - podinfo.local
+  # List of rules applied.
+  rules:
+    - {}
 
 # create Prometheus Operator monitor
 serviceMonitor:
@@ -143,14 +265,6 @@ resources:
   requests:
     cpu: 1m
     memory: 16Mi
-
-# Extra environment variables for the podinfo container
-extraEnvs: []
-# Example on how to configure extraEnvs
-#  - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-#    value: "http://otel:4317"
-#  - name: MULTIPLE_VALUES
-#    value: TEST
 
 nodeSelector: {}
 

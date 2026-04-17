@@ -5,15 +5,15 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: cache
+      app.kubernetes.io/name: cache
   template:
     metadata:
       labels:
-        app: cache
+        app.kubernetes.io/name: cache
     spec:
       containers:
         - name: redis
-          image: redis:7.0.7
+          image: docker.io/redis:8.6.1
           imagePullPolicy: IfNotPresent
           command:
             - redis-server
