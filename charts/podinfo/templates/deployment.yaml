@@ -4,6 +4,8 @@ metadata:
   name: {{ template "podinfo.fullname" . }}
   labels:
     {{- include "podinfo.labels" . | nindent 4 }}
+    app.procore.com/domain: developer-excellence
+    app.procore.com/system: composable-test-environments
 spec:
   {{- if not .Values.hpa.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -19,6 +21,8 @@ spec:
     metadata:
       labels:
         {{- include "podinfo.selectorLabels" . | nindent 8 }}
+        app.procore.com/domain: developer-excellence
+        app.procore.com/system: composable-test-environments
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.service.httpPort }}"

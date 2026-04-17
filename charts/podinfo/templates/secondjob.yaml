@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: secondwait10m
+  labels:
+    app.procore.com/domain: developer-excellence
+    app.procore.com/system: composable-test-environments
+spec:
+  template:
+    metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+      labels:
+        app.procore.com/domain: developer-excellence
+        app.procore.com/system: composable-test-environments
+    spec:
+      containers:
+      - name: secondwait10m
+        image: debian:latest
+        command: ["sleep",  "600"]
+      restartPolicy: Never
+  backoffLimit: 4
