@@ -16,9 +16,6 @@ ui:
   message: ""
   logo: ""
 
-deleteHook:
-  sleepDuration: 30
-
 # failure conditions
 faults:
   delay: false
